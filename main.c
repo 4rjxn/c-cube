@@ -61,6 +61,11 @@ void point(Vertex vert, SDL_Renderer *renderer) {
   SDL_RenderDrawPointF(renderer, vert.x, vert.y);
 }
 
+void line(Vertex start, Vertex end, SDL_Renderer *renderer) {
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  SDL_RenderDrawLineF(renderer, start.x, start.y, end.x, end.y);
+}
+
 int main(void) {
   printf("Starting...\n");
 
@@ -90,9 +95,15 @@ int main(void) {
                          {-0.25, -0.25, 0.25},  {0.25, -0.25, 0.25},
                          {0.25, 0.25, -0.25},   {-0.25, 0.25, -0.25},
                          {-0.25, -0.25, -0.25}, {0.25, -0.25, -0.25}};
-  int len = 8;
+  int faces[6][4] = {
+      {0, 1, 2, 3}, {4, 5, 6, 7}, {0, 1, 5, 4},
+      {2, 3, 7, 6}, {3, 0, 4, 7}, {2, 1, 5, 6},
+  };
+  int len = 6;
+  int flen = 4;
   float dz = 1;
   float angle = M_PI * 2;
+  Vertex a, b;
   while (running) {
     // dz += 1.0 / 16;
     angle += 1.0 / 16;
@@ -104,11 +115,20 @@ int main(void) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
     for (int i = 0; i < len; i++) {
-      point(screen(project(translate_z(
-                rotate_xz((Vertex){points[i][0], points[i][1], points[i][2]},
-                          angle),
-                dz))),
-            renderer);
+      for (int j = 0; j < flen; j++) {
+        a = screen(project(translate_z(
+            rotate_xz((Vertex){points[faces[i][j]][0], points[faces[i][j]][1],
+                               points[faces[i][j]][2]},
+                      angle),
+            dz)));
+        b = screen(project(
+            translate_z(rotate_xz((Vertex){points[faces[i][(j + 1) % flen]][0],
+                                           points[faces[i][(j + 1) % flen]][1],
+                                           points[faces[i][(j + 1) % flen]][2]},
+                                  angle),
+                        dz)));
+        line(a, b, renderer);
+      }
     }
     SDL_RenderPresent(renderer);
     SDL_Delay(16);
