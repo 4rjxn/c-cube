@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_render.h>
 #include <math.h>
 #include <stdio.h>
@@ -106,10 +107,24 @@ int main(void) {
   Vertex a, b;
   while (running) {
     // dz += 1.0 / 16;
-    angle += 1.0 / 16;
+    // angle += 1.0 / 16;
     while (SDL_PollEvent(&event)) {
       if (event.type == SDL_QUIT) {
         running = 0;
+      }
+      if (event.type == SDL_KEYDOWN) {
+        if (event.key.keysym.sym == SDLK_UP) {
+          dz += 0.1;
+        }
+        if (event.key.keysym.sym == SDLK_DOWN) {
+          dz -= 0.1;
+        }
+        if (event.key.keysym.sym == SDLK_LEFT) {
+          angle -= 0.1;
+        }
+        if (event.key.keysym.sym == SDLK_RIGHT) {
+          angle += 0.1;
+        }
       }
     }
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
